@@ -1,46 +1,38 @@
 version: '3'
 services:
-  opensearch: # This is also the hostname of the container within the Docker network (i.e. https://opensearch-node1/)
-    image: opensearchproject/opensearch:latest # Specifying the latest available image - modify if you want a specific version
-    container_name: opensearch
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.13
+    container_name: elasticsearch
+    ports:
+      - "9200:9200"
+      - "9301:9300"
     environment:
+      - xpack.security.enabled=true  # enable authentication
       - network.host=127.0.0.1
       - http.host=0.0.0.0
-      - cluster.name=opensearch # Name the cluster
-      - node.name=opensearch # Name the node that will run in this container
-      - discovery.seed_hosts=opensearch # Nodes to look for when discovering the cluster
-      - cluster.initial_cluster_manager_nodes=opensearch # Nodes eligible to serve as cluster manager
-      - bootstrap.memory_lock=true # Disable JVM heap memory swapping
-      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m" # Set min and max JVM heap sizes to at least 50% of system RAM
-      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=Admin_123456
-      - DISABLE_SECURITY_PLUGIN=true
-    ulimits:
-      memlock:
-        soft: -1 # Set memlock to unlimited (no soft or hard limit)
-        hard: -1
-      nofile:
-        soft: 65536 # Maximum number of open files for the opensearch user - set to at least 65536
-        hard: 65536
+      - ELASTIC_USERNAME=elastic
+      - ELASTIC_PASSWORD=Admin_123456
+      - ES_JAVA_OPTS=-Xms750m -Xmx750m
+      - bootstrap.memory_lock=true
     volumes:
-      - ./opensearch-data:/usr/share/opensearch/data
-    ports:
-      - 9200:9200 # REST API
-      - 9600:9600 # Performance Analyzer
+      - ./elasticsearch-data:/usr/share/elasticsearch/data
     networks:
-      - opensearch-net
+      - elasticsearch-net
 
-
-  opensearch-dashboards:
-    image: opensearchproject/opensearch-dashboards:latest # Make sure the version of opensearch-dashboards matches the version of opensearch installed on other nodes
-    container_name: opensearch-dashboards
-    ports:
-      - 5601:5601 # Map host port 5601 to container port 5601
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.17.13
+    container_name: kibana
     environment:
-      OPENSEARCH_HOSTS: '["http://opensearch:9200"]' # Define the OpenSearch nodes that OpenSearch Dashboards will query
-      DISABLE_SECURITY_DASHBOARDS_PLUGIN: true
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - ELASTICSEARCH_USERNAME=elastic
+      - ELASTICSEARCH_PASSWORD=Admin_123456
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
     networks:
-      - opensearch-net
+      - elasticsearch-net
 
 networks:
-  opensearch-net:
+  elasticsearch-net:
     driver: bridge

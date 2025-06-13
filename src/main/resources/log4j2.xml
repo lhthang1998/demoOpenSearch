@@ -4,7 +4,7 @@
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
         </Console>
-        <OpensearchAppender name="OpenSearch">
+        <OpensearchAppender name="Search">
             <PatternLayout pattern="%msg"/>
             <Application>myApplication</Application>
             <Environment>local</Environment>
@@ -12,8 +12,8 @@
             <Index>test</Index>
             <IndexSuffix>-yyyy.MM</IndexSuffix>
             <Url>http://localhost:9200</Url>
-            <User>admin</User>
-            <Password>3tZ86bCj_</Password>
+            <User>elastic</User>
+            <Password>Admin_123456</Password>
             <FlushThreshold>100</FlushThreshold>
             <FlushInterval>5000</FlushInterval>
         </OpensearchAppender>
@@ -21,7 +21,7 @@
     <Loggers>
         <Root level="INFO">
             <AppenderRef ref="Console"/>
-            <AppenderRef ref="OpenSearch"/>
+            <AppenderRef ref="Search"/>
         </Root>
     </Loggers>
 </Configuration>
