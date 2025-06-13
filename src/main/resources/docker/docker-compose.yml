@@ -1,63 +1,46 @@
----
+version: '3'
 services:
-  opensearch-node1:
-    image: opensearchproject/opensearch:latest
-    container_name: opensearch-node1
+  opensearch: # This is also the hostname of the container within the Docker network (i.e. https://opensearch-node1/)
+    image: opensearchproject/opensearch:latest # Specifying the latest available image - modify if you want a specific version
+    container_name: opensearch
     environment:
-      - cluster.name=opensearch-cluster
-      - node.name=opensearch-node1
-      - discovery.seed_hosts=opensearch-node1,opensearch-node2
-      - cluster.initial_cluster_manager_nodes=opensearch-node1,opensearch-node2
-      - bootstrap.memory_lock=true  # along with the memlock settings below, disables swapping
-      - OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m  # minimum and maximum Java heap size, recommend setting both to 50% of system RAM
-      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=3tZ86bCj_  # Sets the demo admin user password when using demo configuration, required for OpenSearch 2.12 and higher
+      - network.host=127.0.0.1
+      - http.host=0.0.0.0
+      - cluster.name=opensearch # Name the cluster
+      - node.name=opensearch # Name the node that will run in this container
+      - discovery.seed_hosts=opensearch # Nodes to look for when discovering the cluster
+      - cluster.initial_cluster_manager_nodes=opensearch # Nodes eligible to serve as cluster manager
+      - bootstrap.memory_lock=true # Disable JVM heap memory swapping
+      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m" # Set min and max JVM heap sizes to at least 50% of system RAM
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=Admin_123456
+      - DISABLE_SECURITY_PLUGIN=true
     ulimits:
       memlock:
-        soft: -1
+        soft: -1 # Set memlock to unlimited (no soft or hard limit)
         hard: -1
       nofile:
-        soft: 65536  # maximum number of open files for the OpenSearch user, set to at least 65536 on modern systems
+        soft: 65536 # Maximum number of open files for the opensearch user - set to at least 65536
         hard: 65536
     volumes:
-      - ./data/opensearch-data1:/usr/share/opensearch/data
+      - ./opensearch-data:/usr/share/opensearch/data
     ports:
-      - 9200:9200
-      - 9600:9600  # required for Performance Analyzer
+      - 9200:9200 # REST API
+      - 9600:9600 # Performance Analyzer
     networks:
       - opensearch-net
-  opensearch-node2:
-    image: opensearchproject/opensearch:latest
-    container_name: opensearch-node2
-    environment:
-      - cluster.name=opensearch-cluster
-      - node.name=opensearch-node2
-      - discovery.seed_hosts=opensearch-node1,opensearch-node2
-      - cluster.initial_cluster_manager_nodes=opensearch-node1,opensearch-node2
-      - bootstrap.memory_lock=true
-      - OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m
-      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=3tZ86bCj_
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-      nofile:
-        soft: 65536
-        hard: 65536
-    volumes:
-      - ./data/opensearch-data2:/usr/share/opensearch/data
-    networks:
-      - opensearch-net
+
+
   opensearch-dashboards:
-    image: opensearchproject/opensearch-dashboards:latest
+    image: opensearchproject/opensearch-dashboards:latest # Make sure the version of opensearch-dashboards matches the version of opensearch installed on other nodes
     container_name: opensearch-dashboards
     ports:
-      - 5601:5601
-    expose:
-      - '5601'
+      - 5601:5601 # Map host port 5601 to container port 5601
     environment:
-      OPENSEARCH_HOSTS: '["https://opensearch-node1:9200","https://opensearch-node2:9200"]'
+      OPENSEARCH_HOSTS: '["http://opensearch:9200"]' # Define the OpenSearch nodes that OpenSearch Dashboards will query
+      DISABLE_SECURITY_DASHBOARDS_PLUGIN: true
     networks:
       - opensearch-net
 
 networks:
   opensearch-net:
+    driver: bridge
