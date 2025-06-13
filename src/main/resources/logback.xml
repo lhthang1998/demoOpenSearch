@@ -1,3 +1,4 @@
+<!--Logback default by spring boot 3-->
 <configuration>
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="info">
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+        </Console>
+        <OpensearchAppender name="OpenSearch">
+            <PatternLayout pattern="%msg"/>
+            <Application>myApplication</Application>
+            <Environment>local</Environment>
+            <Converter>com.chavaillaz.appender.log4j.DefaultLogConverter</Converter>
+            <Index>test</Index>
+            <IndexSuffix>-yyyy.MM</IndexSuffix>
+            <Url>http://localhost:9200</Url>
+            <User>admin</User>
+            <Password>3tZ86bCj_</Password>
+            <FlushThreshold>100</FlushThreshold>
+            <FlushInterval>5000</FlushInterval>
+        </OpensearchAppender>
+    </Appenders>
+    <Loggers>
+        <Root level="INFO">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="OpenSearch"/>
+        </Root>
+    </Loggers>
+</Configuration>

@@ -17,6 +17,10 @@ configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
 	}
+
+	// logback default by spring-boot 3. if want to use log4j then should exclude
+	all*.exclude module : 'spring-boot-starter-logging'
+	all*.exclude module : 'logback-classic'
 }
 
 repositories {
@@ -25,8 +29,16 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation "ch.qos.logback:logback-classic:1.5.18"
-	implementation "ch.qos.logback:logback-core:1.5.18"
+
+	//logback - enable these when to use logback.xml
+//	implementation "ch.qos.logback:logback-classic:1.5.18"
+//	implementation "ch.qos.logback:logback-core:1.5.18"
+
+	//log4j
+	implementation 'org.apache.logging.log4j:log4j-api:2.24.3'
+	implementation 'org.apache.logging.log4j:log4j-core:2.24.3'
+	implementation "com.chavaillaz:opensearch-log4j-appender:1.0.1"
+
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
