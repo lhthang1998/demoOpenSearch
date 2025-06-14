@@ -12,7 +12,10 @@
             <Index>test</Index>
             <IndexSuffix>-yyyy.MM</IndexSuffix>
             <Url>http://localhost:9200</Url>
-            <User>elastic</User>
+            <!--For elasticsearch-->
+<!--            <User>elastic</User> -->
+            <!--For opensearch-->
+            <User>admin</User>
             <Password>Admin_123456</Password>
             <FlushThreshold>100</FlushThreshold>
             <FlushInterval>5000</FlushInterval>
